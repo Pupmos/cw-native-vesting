@@ -1,0 +1,7 @@
+{
+  "out": "./docs",
+  "name": "wasm-vesting",
+  "theme": "markdown",
+  "readme": "none",
+  "tsconfig": "./tsconfig.bundle.json"
+}
