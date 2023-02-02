@@ -1,7 +1,7 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use cosmwasm_std::{Addr, CosmosMsg, Uint128};
+use cosmwasm_std::{Addr, CosmosMsg, DistributionMsg, StakingMsg, Uint128};
 
 use crate::state::VestingPlan;
 
@@ -55,6 +55,11 @@ pub enum ExecuteMsg {
     /// It will burn all frozen tokens and set Oversight and Operator's addresses
     /// to the Reciepient's key. This marks the contract as Liberated
     HandOver {},
+
+    // Enable recipient to execute any DistributionMsg
+    Distribution(DistributionMsg),
+    // Enable recipient to execute any StakingMsg
+    Staking(StakingMsg),
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema)]

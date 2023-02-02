@@ -1,8 +1,8 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
-    coins, to_binary, Addr, BankMsg, Binary, CosmosMsg, CustomQuery, Decimal, Deps, DepsMut, Env,
-    MessageInfo, StdResult, Uint128,
+    coins, to_binary, Addr, BankMsg, Binary, CosmosMsg, CustomQuery, Decimal, Deps, DepsMut,
+    DistributionMsg, Env, MessageInfo, StakingMsg, StdResult, Uint128,
 };
 use cw2::set_contract_version;
 
@@ -28,8 +28,11 @@ pub fn instantiate(
     msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
+    let recipient = msg.recipient.to_string();
     create_vesting_account(deps, info, msg)?;
-    Ok(Response::default())
+    Ok(Response::default().add_message(CosmosMsg::Distribution(
+        DistributionMsg::SetWithdrawAddress { address: recipient },
+    )))
 }
 
 fn create_vesting_account<Q: CustomQuery>(
@@ -68,6 +71,10 @@ pub fn execute(
         ExecuteMsg::UnfreezeTokens { amount } => unfreeze_tokens(deps, info.sender, amount),
         ExecuteMsg::ChangeOperator { address } => change_operator(deps, info.sender, address),
         ExecuteMsg::HandOver {} => hand_over(deps, env, info.sender),
+        ExecuteMsg::Staking(staking_msg) => execute_staking_msg(deps, info.sender, staking_msg),
+        ExecuteMsg::Distribution(distribution_msg) => {
+            execute_distribution_msg(deps, info.sender, distribution_msg)
+        }
         _ => Err(ContractError::NotImplemented),
     }
 }
@@ -151,6 +158,32 @@ fn allowed_release<Q: CustomQuery>(
             }
         }
     }
+}
+
+fn execute_staking_msg<Q: CustomQuery>(
+    deps: DepsMut<Q>,
+    sender: Addr,
+    staking_msg: StakingMsg,
+) -> Result<Response, ContractError> {
+    let account = VESTING_ACCOUNT.load(deps.storage)?;
+    require_operator(&sender, &account)?;
+
+    Ok(Response::new()
+        .add_message(CosmosMsg::Staking(staking_msg))
+        .add_attribute("action", "execute_staking"))
+}
+
+fn execute_distribution_msg<Q: CustomQuery>(
+    deps: DepsMut<Q>,
+    sender: Addr,
+    distribution_msg: DistributionMsg,
+) -> Result<Response, ContractError> {
+    let account = VESTING_ACCOUNT.load(deps.storage)?;
+    require_operator(&sender, &account)?;
+
+    Ok(Response::new()
+        .add_message(CosmosMsg::Distribution(distribution_msg))
+        .add_attribute("action", "execute_distribution"))
 }
 
 fn execute_msg<Q: CustomQuery>(

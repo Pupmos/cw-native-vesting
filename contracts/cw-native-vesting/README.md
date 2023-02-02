@@ -9,24 +9,24 @@ Many stakeholders will receive vesting accounts of tokens that will be released 
 - This can be implemented as a CosmWasm contract
 - (Optional) there may be a way to freeze payout if the recipient violates a contractual agreement (eg. a validator leaves the network after 1 month but gets all tokens). Note the Validator agreement has a clause where the validator agrees to run a node for a minimum period, if there is a breach of agreement then there are legal options available to claim the tokens back.
 
-When discussing the legal / tax issues with Martin, we came to the conclusion that all unvested / unreleased tokens must be under the control of SOB to ensure the tax burden remains with SOB (which doesn't have an issue here) and not the ultimate recipient.
+When discussing the legal / tax issues with Martin, we came to the conclusion that all unvested / unreleased tokens must be under the control of Issuer to ensure the tax burden remains with Issuer (which doesn't have an issue here) and not the ultimate recipient.
 
 ## Key Tax considerations
 It is important when considering what can be viewed as a taxable event.
 
-If the contract is devised with a fixed date (i.e. at the end of the vesting period) even if it requires the SOB multisig the tax authorities will consider this some form of obfuscation/tax avoidance and potentially ignore the release date. If there is discretion from the SOB board it can be argued that the tokens have little to no value as they may never be awarded, so from an income tax perspective you receive the tokens booked at nil or a symbolic Euro, and when you dispose of your tokens you then are subject to capital gains tax.
+If the contract is devised with a fixed date (i.e. at the end of the vesting period) even if it requires the Issuer multisig the tax authorities will consider this some form of obfuscation/tax avoidance and potentially ignore the release date. If there is discretion from the Issuer board it can be argued that the tokens have little to no value as they may never be awarded, so from an income tax perspective you receive the tokens booked at nil or a symbolic Euro, and when you dispose of your tokens you then are subject to capital gains tax.
 
-This then creates a further issue in whether people trust SOB to release the tokens. We also need to ensure the board composition has a quorum of members that do not directly benefit from the scheme (the board is about to be 5 members, 2 of which are Confio) and board members who are beneficiaries must abstain from resolutions to release tokens.
+This then creates a further issue in whether people trust Issuer to release the tokens. We also need to ensure the board composition has a quorum of members that do not directly benefit from the scheme (the board is about to be 5 members, 2 of which are Confio) and board members who are beneficiaries must abstain from resolutions to release tokens.
 
-It is important that we get tax advice from the jurisdictions where employees live and where appropriate we may need different smart contracts for the relevant jurisdictions. Not all jurisdictions may accept the nil value based on the discretion of the SOB.
+It is important that we get tax advice from the jurisdictions where employees live and where appropriate we may need different smart contracts for the relevant jurisdictions. Not all jurisdictions may accept the nil value based on the discretion of the Issuer.
 
 ### Actors
-- Operator - this is either the validator or an optional delegation to an "operational" employee from SOB, which can approve the payout of fully vested tokens to the final recipient. They cannot do anything else
-- Oversight - this is a secure multi-sig from SOB, which can be used in extraordinary circumstances, to change the Operator, or to halt the release of future tokens in the case of misbehaviour.
-- Recipient - this is the account that receives the tokens once they have been vested and released. This cannot be changed. Tokens not released for whatever reason will be effectively burned, so SOB cannot repurpose them.
+- Operator - this is the account which can approve the payout of fully vested tokens to the final recipient. They can also stake their unvested tokens and distribute their rewards. They cannot do anything else
+- Oversight - this is a secure multi-sig from Issuer, which can be used in extraordinary circumstances, to change the Operator, or to halt the release of future tokens in the case of misbehaviour.
+- Recipient - this is the account that receives the tokens once they have been vested and released. This cannot be changed. Tokens not released for whatever reason will be effectively burned, so Issuer cannot repurpose them.
 
 ### Setup
-A vesting contract can be defined easily in the tgrade genesis file, or can be created any time afterwards in a running chain (also by other actors besides SOB). When creating a contract the three accounts above must be defined (Operator, Oversight, and Recipient). We must also define vesting tokens and schedule. Vesting tokens are the total number of tokens to be released, and the schedule defines when they are available.
+A vesting contract can be defined easily in the tgrade genesis file, or can be created any time afterwards in a running chain (also by other actors besides Issuer). When creating a contract the three accounts above must be defined (Operator, Oversight, and Recipient). We must also define vesting tokens and schedule. Vesting tokens are the total number of tokens to be released, and the schedule defines when they are available.
 
 We will keep this easy for now and only allow schedules that can be represented as a piecewise linear curve. That is, 0% until "start time", 100% after "end time" and a linear increase between the two. While the schedule is continuous, this doesn't mean the tokens will all be released every block, just the allowed limit increases.
 
